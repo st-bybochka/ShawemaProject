@@ -12,6 +12,6 @@ class UserProfile(Base):
     email: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     hashed_password: Mapped[str] = mapped_column(String(100), nullable=False)
     login_attempts: Mapped[int] = mapped_column(Integer, default=0)
-    block_until: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    block_until: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)

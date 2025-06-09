@@ -5,23 +5,23 @@ from app.repositories.base_repository import BaseRepository
 from app.services import UserService, AuthService, HashService, JwtTokenService
 from app.repositories import UserRepository
 from app.config import settings
-from app.services.token_blacklist_service import TokenBlacklistService
+# from app.services.token_blacklist_service import TokenBlacklistService
 
 
 async def get_hash_service() -> HashService:
     return HashService()
 
 
-async def get_blacklist_service() -> TokenBlacklistService:
-    return TokenBlacklistService()
+# async def get_blacklist_service() -> TokenBlacklistService:
+#     return TokenBlacklistService()
 
 
 async def get_jwt_token_service(
-        blacklist_service: Annotated[TokenBlacklistService, Depends(get_blacklist_service)]
+        # blacklist_service: Annotated[TokenBlacklistService, Depends(get_blacklist_service)]
 ) -> JwtTokenService:
     return JwtTokenService(
         settings=settings,
-        blacklist_service=blacklist_service
+        # blacklist_service=blacklist_service
     )
 
 

@@ -13,18 +13,8 @@ from app.handlers import user_handler, auth_handler
 
 app = FastAPI()
 
-app.add_middleware(ResponseFormatterMiddleware)
-
-# Обработчики ошибок
-app.add_exception_handler(HTTPException, custom_http_exception_handler)
-app.add_exception_handler(BaseUserException, custom_user_exception_handler)
-app.add_exception_handler(TokenNotCorrect, custom_token_exception_handler)
-app.add_exception_handler(TokenMissingException, custom_token_exception_handler)
-app.add_exception_handler(Exception, custom_generic_exception_handler)
-
-# Подключаем Middleware для формата ответов
 
 
-# Роутеры
+
 app.include_router(user_handler.router)
 app.include_router(auth_handler.router)

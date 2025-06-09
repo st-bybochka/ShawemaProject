@@ -1,16 +1,24 @@
-class TransactionManager:
-    def __init__(self, async_session_maker):
-        self.async_session_maker = async_session_maker
+from functools import wraps
 
-    async def __aenter__(self):
-        self.session = self.async_session_maker()  # Создаём сессию
-        return self.session
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from app.infrastructure.database.database import async_session_maker
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:
 
-            await self.session.commit()
-        else:
+class Transactional:
+    def __init__(self, session_maker: async_sessionmaker):
+        self.session_maker = session_maker
 
-            await self.session.rollback()
-        await self.session.close()
+    def __call__(self, func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            async with self.session_maker() as session:
+                async with session.begin():
+                    try:
+
+                        return await func(*args, session=session, **kwargs)
+                    except Exception:
+                        await session.rollback()
+                        raise
+        return wrapper
+
+transaction = Transactional(async_session_maker)

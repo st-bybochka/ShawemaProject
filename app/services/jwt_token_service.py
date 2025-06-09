@@ -6,13 +6,13 @@ from typing import Literal
 
 from app.config import settings
 from app.exceptions import TokenExpiredError, TokenBlacklistError, TokenDecodeError
-from app.services.token_blacklist_service import TokenBlacklistService
+# from app.services.token_blacklist_service import TokenBlacklistService
 
 
 @dataclass
 class JwtTokenService:
     settings: settings
-    blacklist_service: TokenBlacklistService
+    # blacklist_service: TokenBlacklistService
 
     async def _create_token(self, user_id: int, token_type: Literal["access", "refresh"]) -> str:
         if token_type == "access":
@@ -35,12 +35,11 @@ class JwtTokenService:
 
     async def decode_token(self, token: str) -> dict:
 
-        is_blacklisted = await self.blacklist_service.is_token_blacklisted(token)
-        if is_blacklisted:
-            raise TokenBlacklistError()
+        # is_blacklisted = await self.blacklist_service.is_token_blacklisted(token)
+        # if is_blacklisted:
+        #     raise TokenBlacklistError()
 
         try:
-            # Попытка декодировать токен
             decoded_data = jwt.decode(
                 token,
                 self.settings.JWT_SECRET_KEY,

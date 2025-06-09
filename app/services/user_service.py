@@ -16,14 +16,14 @@ class UserService:
 
     async def create_user(self, response: Response, data: UserLoginSchema) -> None:
 
-        user = await self.user_repository.get_user_by_email(str(data.email))
+        user = await self.user_repository.get_user_by_email(email=str(data.email))
 
         if user:
             raise UserAlreadyRegisteredException
 
-        hashed_password = self.hash_service.get_hash_password(data.hashed_password)
+        hashed_password = self.hash_service.get_hash_password(password=data.hashed_password)
 
-        user_id = await self.user_repository.create_user(str(data.email), hashed_password)
+        user_id = await self.user_repository.create_user(email=str(data.email), hashed_password=hashed_password)
 
         access_token = await self.jwt_token_service.create_access_token(user_id=user_id)
         refresh_token = await self.jwt_token_service.create_refresh_token(user_id=user_id)

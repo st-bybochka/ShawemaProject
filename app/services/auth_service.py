@@ -22,14 +22,14 @@ class AuthService:
     settings: settings
 
     async def login(self, data: UserLoginSchema, response: Response) -> dict:
-        user = await self._authenticate_user(data)
-        await self._check_block_status(user)
-        tokens = await self._generate_tokens(user.id, response)
+        user = await self._authenticate_user(data=data)
+        await self._check_block_status(user=user)
+        tokens = await self._generate_tokens(user_id=user.id, response=response)
         return tokens
 
     async def logout(self, token: str):
 
-        decoded_token = await self.jwt_token_service.decode_token(token)
+        decoded_token = await self.jwt_token_service.decode_token(token=token)
         exp = decoded_token["exp"]
         current_time = datetime.utcnow().timestamp()
 
@@ -78,11 +78,11 @@ class AuthService:
         return payload["user_id"]
 
     async def _authenticate_user(self, data: UserLoginSchema) -> UserProfile:
-        user = await self.user_repository.get_user_by_email(str(data.email))
+        user = await self.user_repository.get_user_by_email(email=str(data.email))
         if not user:
             raise UserNotFoundException(f"User with email {data.email} not found.")
-        if not self.hash_service.verify_hash_password(data.hashed_password, user.hashed_password):
-            await self._register_failed_attempt(user)
+        if not self.hash_service.verify_hash_password(plain_password=data.hashed_password, hashed_password=user.hashed_password):
+            await self._register_failed_attempt(user=user)
             raise UserIncorrectLoginOrPasswordException
         return user
 
@@ -99,8 +99,8 @@ class AuthService:
             raise UserBlockedException("User is blocked. Try again later.")
 
     async def _generate_tokens(self, user_id: int, response: Response) -> dict:
-        access_token = await self.jwt_token_service.create_access_token(user_id)
-        refresh_token = await self.jwt_token_service.create_refresh_token(user_id)
+        access_token = await self.jwt_token_service.create_access_token(user_id=user_id)
+        refresh_token = await self.jwt_token_service.create_refresh_token(user_id=user_id)
 
         response.set_cookie(key="access_token", value=str(access_token), httponly=True, secure=True)
         response.set_cookie(key="refresh_token", value=str(refresh_token), httponly=True, secure=True)
